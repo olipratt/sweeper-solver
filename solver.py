@@ -15,7 +15,9 @@ is either:
 """
 import logging
 
-log = logging.getLogger(__name__)
+from logfmtadapter import StyleAdapter
+
+log = StyleAdapter(logging.getLogger(__name__))
 
 
 def _is_board_in_initial_state(board):
@@ -23,7 +25,10 @@ def _is_board_in_initial_state(board):
     for row in board:
         for element in row:
             if element is not None:
+                log.debug("Found non-empty board element: {}", element)
                 return False
+
+    log.debug("No none-empty board elements found")
     return True
 
 
@@ -31,8 +36,11 @@ def make_move(game_board):
     """ Make the next move.
     :return: A 2-tuple containing the point to reveal next.
     """
+    log.debug("Determining move on board: {}", game_board)
 
     if _is_board_in_initial_state(game_board):
+        log.debug("Board is in initial state - return center point")
         next_point = (len(game_board) / 2, len(game_board[0]) / 2)
 
+    log.debug("Determined next move as: {}", next_point)
     return next_point
