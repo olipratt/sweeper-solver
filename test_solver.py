@@ -6,9 +6,9 @@ import unittest
 import solver
 
 
-INITIAL_BOARD = [[[None, None], [None, None], [None, None]],
-                 [[None, None], [None, None], [None, None]],
-                 [[None, None], [None, None], [None, None]]]
+INITIAL_BOARD = [[None, None, None],
+                 [None, None, None],
+                 [None, None, None]]
 
 
 class TestFirstMove(unittest.TestCase):
