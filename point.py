@@ -11,6 +11,9 @@ class Point:
         self.x = x
         self.y = y
 
+    def __eq__(self, other):
+        return (self.x == other.x) and (self.y == other.y)
+
     def chebyshev_distance(self, other_point):
         """ 'Chessboard' distance between two points. """
         return max(abs(self.x - other_point.x), abs(self.y - other_point.y))
