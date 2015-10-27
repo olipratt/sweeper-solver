@@ -38,6 +38,11 @@ class BoardSpace:
     def tile(self):
         return self._tile
 
+    @tile.setter
+    def tile(self, tile):
+        assert self._tile is None
+        self._tile = tile
+
     @property
     def location(self):
         return self._location
@@ -45,11 +50,6 @@ class BoardSpace:
     @property
     def revealed(self):
         return self.tile is not None
-
-    @tile.setter
-    def tile(self, tile):
-        assert self._tile is None
-        self._tile = tile
 
     def is_neighbour(self, neighbour):
         """ Returns True if this space neighbours the given space. """
@@ -78,6 +78,14 @@ class GameBoard:
         """ Return an iterator over all spaces in the board. """
         return (space for row in self._board for space in row)
 
+    def iter_revealed_spaces(self):
+        """ Return an iterator over all revealed spaces in the board. """
+        return (space for space in self.iter_spaces() if space.revealed)
+
+    def iter_unrevealed_spaces(self):
+        """ Return an iterator over all unrevealed spaces in the board. """
+        return (space for space in self.iter_spaces() if not space.revealed)
+
     def iter_neighbours(self, space):
         """ Return an iterator over all spaces in the board neighbouring the
             given space.
@@ -85,12 +93,18 @@ class GameBoard:
         return (neighbour for neighbour in self.iter_spaces()
                 if neighbour.is_neighbour(space))
 
+    def iter_revealed_neighbours(self, space):
+        """ Return an iterator over all revealed spaces in the board
+            neighbouring the given space.
+        """
+        return (neighbour for neighbour in self.iter_neighbours(space)
+                if neighbour.revealed)
+
     def in_start_state(self):
         """ Whether the board still has all tiles unrevealed. """
-        for board_space in self.iter_spaces():
-            if board_space.revealed:
-                log.debug("Found revealed board space: %r", board_space)
-                return False
+        for board_space in self.iter_revealed_spaces():
+            log.debug("Found revealed board space: %r", board_space)
+            return False
 
         log.debug("No revealed spaces found")
         return True

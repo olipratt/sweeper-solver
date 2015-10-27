@@ -21,21 +21,9 @@ from point import Point
 log = logging.getLogger(__name__)
 
 
-def _is_board_in_initial_state(board):
-    """ Return True if no move has yet been made on the given board. """
-    for row in board:
-        for element in row:
-            if element is not None:
-                log.debug("Found non-empty board element: %r", element)
-                return False
-
-    log.debug("No none-empty board elements found")
-    return True
-
-
 def make_move(level, game_board):
     """ Make the next move.
-    :return: A 2-tuple containing the point to reveal next.
+    :return: The point to reveal next.
     """
     log.debug("Determining move at level: %r on board: %r", game_board, level)
     assert level > 0, "Negative or zero level is invalid"
@@ -48,14 +36,12 @@ def make_move(level, game_board):
         return next_point
 
     # Check for a tile with neighbours totaling just our level or lower.
-    for space in game_board.iter_spaces():
-        if not space.revealed:
-            for neighbour in game_board.iter_neighbours(space):
-                if (neighbour.revealed and
-                        neighbour.tile.neighbour_lvls_sum <= level):
-                    next_point = space.location
-                    log.debug("Determined next move as: %r", next_point)
-                    return next_point
+    for space in game_board.iter_unrevealed_spaces():
+        for neighbour in game_board.iter_revealed_neighbours(space):
+            if neighbour.tile.neighbour_lvls_sum <= level:
+                next_point = space.location
+                log.debug("Determined next move as: %r", next_point)
+                return next_point
 
     log.error("Failed to determine next move")
     raise Exception("Failed to determine next move")

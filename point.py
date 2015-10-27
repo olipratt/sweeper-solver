@@ -50,4 +50,20 @@ if __name__ == "__main__":
         def test_negative_distance(self):
             self.assertEqual(Point(1, 1).euclidean_distance(Point(-2, -3)), 5)
 
+    class TestEquality(unittest.TestCase):
+        """ Test the equality and inequality of Points. """
+
+        def test_same_coords(self):
+            self.assertEqual(Point(2, 1), Point(2, 1))
+
+        def test_same_instance(self):
+            point = Point(2, 1)
+            self.assertEqual(point, point)
+
+        def test_x_inequality(self):
+            self.assertNotEqual(Point(1, 1), Point(0, 1))
+
+        def test_y_inequality(self):
+            self.assertNotEqual(Point(1, 1), Point(1, 0))
+
     unittest.main()
