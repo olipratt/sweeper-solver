@@ -13,20 +13,20 @@ class BoundedInt:
 
     def __eq__(self, other):
         if isinstance(other, int):
-            return (self.exact is not None) and self.exact == other
+            return self.is_exact and self.exact == other
         elif isinstance(other, self.__class__):
-            return ((self.exact is not None) and
-                    (other.exact is not None) and
+            return (self.is_exact and
+                    other.is_exact and
                     (self.exact == other.exact))
         else:
             return NotImplemented
 
     def __lt__(self, other):
         if isinstance(other, int):
-            return (self.exact is not None) and self.exact < other
+            return self.is_exact and self.exact < other
         elif isinstance(other, self.__class__):
-            return ((self.exact is not None) and
-                    (other.exact is not None) and
+            return (self.is_exact and
+                    other.is_exact and
                     (self.exact < other.exact))
         else:
             return NotImplemented
@@ -45,7 +45,7 @@ class BoundedInt:
     def min(self, new_min):
         new_min = int(new_min)
         assert self._min < new_min, "Can't decrease lower bound"
-        self._min = int(new_min)
+        self._min = new_min
 
     @property
     def max(self):
@@ -58,5 +58,14 @@ class BoundedInt:
         self._max = new_max
 
     @property
+    def is_exact(self):
+        return self.min == self.max
+
+    @property
     def exact(self):
-        return self.min if self.min == self.max else None
+        return self.min if self.is_exact else None
+
+    @exact.setter
+    def exact(self, new_exact):
+        self.min = new_exact
+        self.max = new_exact
