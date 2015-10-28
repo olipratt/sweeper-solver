@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 class Tile:
     """ Represents a single tile on a game board. """
 
-    def __init__(self, enemy_lvl, neighbour_lvls_sum):
+    def __init__(self, enemy_lvl=None, neighbour_lvls_sum=None):
         self._enemy_lvl = enemy_lvl
         self._neighbour_lvls_sum = neighbour_lvls_sum
 
@@ -28,9 +28,20 @@ class Tile:
     def enemy_lvl(self):
         return self._enemy_lvl
 
+    @enemy_lvl.setter
+    def enemy_lvl(self, enemy_lvl):
+        assert self._enemy_lvl is None, "Can't set enemy_lvl twice"
+        self._enemy_lvl = enemy_lvl
+
     @property
     def neighbour_lvls_sum(self):
         return self._neighbour_lvls_sum
+
+    @neighbour_lvls_sum.setter
+    def neighbour_lvls_sum(self, neighbour_lvls_sum):
+        assert self._neighbour_lvls_sum is None, \
+            "Can't set neighbour_lvls_sum twice"
+        self._neighbour_lvls_sum = neighbour_lvls_sum
 
 
 class BoardSpace:
@@ -40,7 +51,12 @@ class BoardSpace:
 
     def __init__(self, location, tile=None):
         self._location = location
-        self._tile = tile
+
+        self._revealed = tile is not None
+        if tile is None:
+            self._tile = Tile()
+        else:
+            self._tile = tile
 
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__,
@@ -56,7 +72,8 @@ class BoardSpace:
 
     @tile.setter
     def tile(self, tile):
-        assert self._tile is None
+        assert not self.revealed, "Can't set an already revealed tile again"
+        self._revealed = True
         self._tile = tile
 
     @property
@@ -65,7 +82,7 @@ class BoardSpace:
 
     @property
     def revealed(self):
-        return self.tile is not None
+        return self._revealed
 
     def is_neighbour(self, neighbour):
         """ Returns True if this space neighbours the given space. """
