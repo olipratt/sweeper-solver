@@ -40,5 +40,27 @@ class TestRevealedAtLowerLevel(unittest.TestCase):
         self.assertEqual(next_move.chebyshev_distance(self.revealed_location),
                          1)
 
+
+class TestRemainingNeighboursAtLowerLevel(unittest.TestCase):
+    """ Test that a tile is revealed next to one that is surrounded by a total
+        level higher than the player level, but enough have already been
+        revealed so the remaining total is lower.
+    """
+
+    def setUp(self):
+        self.board = GameBoard(10, 10)
+        self.revealed_location = Point(2, 2)
+        self.revealed_neighbour = Point(1, 1)
+        self.board.set_tile(self.revealed_location,
+                            Tile(enemy_lvl=0, neighbour_lvls_sum=9))
+        self.board.set_tile(self.revealed_neighbour,
+                            Tile(enemy_lvl=8, neighbour_lvls_sum=19))
+
+    def test_remaining_neighbours_at_same_level(self):
+        next_move = solver.make_move(1, self.board)
+        self.assertEqual(next_move.chebyshev_distance(self.revealed_location),
+                         1)
+        self.assertNotEqual(next_move, self.revealed_neighbour)
+
 if __name__ == "__main__":
     unittest.main()

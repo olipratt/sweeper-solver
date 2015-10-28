@@ -16,6 +16,14 @@ class Tile:
         self._enemy_lvl = enemy_lvl
         self._neighbour_lvls_sum = neighbour_lvls_sum
 
+    def __repr__(self):
+        return "%s(%r, %r)" % (self.__class__.__name__,
+                               self.enemy_lvl,
+                               self.neighbour_lvls_sum)
+
+    def __str__(self):
+        return "%d/%02d" % (self.enemy_lvl, self.neighbour_lvls_sum)
+
     @property
     def enemy_lvl(self):
         return self._enemy_lvl
@@ -33,6 +41,14 @@ class BoardSpace:
     def __init__(self, location, tile=None):
         self._location = location
         self._tile = tile
+
+    def __repr__(self):
+        return "%s(%r, %r)" % (self.__class__.__name__,
+                               self.location,
+                               self.tile)
+
+    def __str__(self):
+        return "%s" % self.tile
 
     @property
     def tile(self):
@@ -53,18 +69,32 @@ class BoardSpace:
 
     def is_neighbour(self, neighbour):
         """ Returns True if this space neighbours the given space. """
-        return self.location.chebyshev_distance(neighbour.location)
+        return self.location.chebyshev_distance(neighbour.location) == 1
 
 
 class GameBoard:
     """ Object to represent a game board made up of a 2D array of tiles. """
 
     def __init__(self, width, height):
+        assert width > 0, "Width must be strictly positive"
+        assert height > 0, "Height must be strictly positive"
         self._width = width
         self._height = height
 
         self._board = [[BoardSpace(Point(x, y)) for x in range(self.width)]
                        for y in range(self.height)]
+
+    def __repr__(self):
+        row_strs = ["[%s]" % ", ".join(repr(space) for space in row)
+                    for row in self._board]
+        return "%s([%s])" % (self.__class__.__name__, ", ".join(row_strs))
+
+    def __str__(self):
+        row_strs = ["|%s|" % "|".join(str(space) for space in row)
+                    for row in self._board]
+        border = '-' * len(row_strs[0])
+        inner_border = "\n%s\n" % border
+        return "%s\n%s\n%s" % (border, inner_border.join(row_strs), border)
 
     @property
     def width(self):
@@ -102,12 +132,16 @@ class GameBoard:
 
     def in_start_state(self):
         """ Whether the board still has all tiles unrevealed. """
-        for board_space in self.iter_revealed_spaces():
-            log.debug("Found revealed board space: %r", board_space)
-            return False
+        return next(self.iter_revealed_spaces(), None) is None
 
-        log.debug("No revealed spaces found")
-        return True
+    def unrevealed_neighbour_levels_sum(self, space):
+        """ The sum of the levels of the unrevealed neighbours of a space. """
+        assert space.revealed, "Cannot calculate for unrevealed space"
+        result = space.tile.neighbour_lvls_sum
+        result -= sum(neighbour.tile.enemy_lvl
+                      for neighbour in self.iter_revealed_neighbours(space))
+        log.debug("Found remaining unrevealed neighbours as: %r", result)
+        return result
 
     def set_tile(self, location, tile):
         """ Set the tile at the given coordinates to the given tile. """

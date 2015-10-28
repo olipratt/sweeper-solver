@@ -25,7 +25,7 @@ def make_move(level, game_board):
     """ Make the next move.
     :return: The point to reveal next.
     """
-    log.debug("Determining move at level: %r on board: %r", game_board, level)
+    log.debug("Determining move at level: %r on board:\n%s", level, game_board)
     assert level > 0, "Negative or zero level is invalid"
 
     # Handle the case where this is the first move.
@@ -37,8 +37,10 @@ def make_move(level, game_board):
 
     # Check for a tile with neighbours totaling just our level or lower.
     for space in game_board.iter_unrevealed_spaces():
+        log.debug("Checking unrevealed space: %r", space)
         for neighbour in game_board.iter_revealed_neighbours(space):
-            if neighbour.tile.neighbour_lvls_sum <= level:
+            log.debug("Checking revealed neighbour space: %r", neighbour)
+            if game_board.unrevealed_neighbour_levels_sum(neighbour) <= level:
                 next_point = space.location
                 log.debug("Determined next move as: %r", next_point)
                 return next_point
