@@ -28,11 +28,18 @@ class BoardSpace:
 
     @property
     def tile(self):
+        """ The Tile in this space on the board. """
         return self._tile
 
     def replace_placeholder(self, new_tile):
-        assert self.tile.placeholder, "Must replace placeholder tile"
-        assert not new_tile.placeholder, "Must replace with non-placeholder"
+        """ Replace a placeholder tile with an actual tile, returning the
+            placeholder.
+        """
+        if not self.tile.placeholder:
+            raise ValueError("Can replace placeholder tile only")
+        if new_tile.placeholder:
+            raise ValueError("Must replace placeholder with non-placeholder")
+
         old_tile = self._tile
         self._tile = new_tile
 
@@ -40,10 +47,14 @@ class BoardSpace:
 
     @property
     def location(self):
+        """ The coordinates of this tile on the game board. """
         return self._location
 
     @property
     def revealed(self):
+        """ Whether this space is revealed, and so if the tile in this space is
+            a placeholder or not.
+        """
         return not self.tile.placeholder
 
     def is_neighbour(self, neighbour):
@@ -55,8 +66,11 @@ class GameBoard:
     """ Object to represent a game board made up of a 2D array of tiles. """
 
     def __init__(self, width, height, tile_bank):
-        assert width > 0, "Width must be strictly positive"
-        assert height > 0, "Height must be strictly positive"
+        if width <= 0:
+            raise ValueError("Width must be strictly positive")
+        if height <= 0:
+            raise ValueError("Height must be strictly positive")
+
         self._width = width
         self._height = height
         self._tile_bank = tile_bank
@@ -80,10 +94,12 @@ class GameBoard:
 
     @property
     def width(self):
+        """ The read only width of the board. """
         return self._width
 
     @property
     def height(self):
+        """ The read only height of the board. """
         return self._height
 
     def iter_spaces(self):
@@ -118,15 +134,25 @@ class GameBoard:
 
     def unrevealed_neighbour_levels_sum(self, space):
         """ The sum of the levels of the unrevealed neighbours of a space. """
-        assert space.revealed, "Cannot calculate for unrevealed space"
+        if not space.revealed:
+            raise ValueError("Cannot calculate for unrevealed space")
+
         result = space.tile.neighbour_lvls_sum
         result -= sum(neighbour.tile.enemy_lvl.exact
                       for neighbour in self.iter_revealed_neighbours(space))
+
         log.debug("Found remaining unrevealed neighbours as: %r", result)
         return result
 
-    def set_tile(self, location, tile):
+    def _point_inside_board(self, point):
+        """ Check that the given point is that of a space on the board. """
+        return (0 <= point.x < self.width) and (0 <= point.y < self.height)
+
+    def set_revealed_tile(self, location, tile):
         """ Set the tile at the given coordinates to the given tile. """
+        if not self._point_inside_board(location):
+            raise ValueError("Tried to set revealed tile outside board")
+
         space = self._board[location.y][location.x]
         placeholder = space.replace_placeholder(tile)
         self._tile_bank.return_placeholder(placeholder)

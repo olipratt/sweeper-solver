@@ -1,5 +1,5 @@
 """
-Object to represent a game board.
+Representations of a tile for a game board, and a bank of available tiles.
 """
 import logging
 
@@ -12,6 +12,8 @@ class Tile:
     """ Represents a single tile on a game board. """
 
     def __init__(self, enemy_lvl, neighbour_lvls_sum=None, placeholder=False):
+        if not isinstance(enemy_lvl, BoundedInt):
+            raise TypeError("Enemy level must be bounded integer")
         self._enemy_lvl = enemy_lvl
         self._neighbour_lvls_sum = neighbour_lvls_sum
         self._placeholder = placeholder
@@ -22,14 +24,18 @@ class Tile:
                                self.neighbour_lvls_sum)
 
     def __str__(self):
-        return "%d/%02d" % (self.enemy_lvl, self.neighbour_lvls_sum)
+        return "%s/%02d" % (self.enemy_lvl, self.neighbour_lvls_sum)
 
     @property
     def enemy_lvl(self):
+        """ Get the level of the enemy on this tile as a bounded integer. """
         return self._enemy_lvl
 
     @property
     def neighbour_lvls_sum(self):
+        """ The sum of levels of enemies on all neighbouring tiles.
+        Is None until the value is set, at which point it can't be set again.
+        """
         return self._neighbour_lvls_sum
 
     @neighbour_lvls_sum.setter
@@ -40,6 +46,7 @@ class Tile:
 
     @property
     def placeholder(self):
+        """ Whether this is a placeholder tile or not. """
         return self._placeholder
 
 
@@ -47,31 +54,52 @@ class TileBank:
     """ A collection of tiles with limits, which can be drawn from. """
 
     def __init__(self, enemy_lvls_and_counts):
+        if len(enemy_lvls_and_counts) == 0:
+            raise ValueError("Tile bank must contain some tiles")
+
         self._bank = {lvl: count
                       for lvl, count in enemy_lvls_and_counts.items()}
+        self._min_level = min(key for key in self._bank)
         self._max_level = max(key for key in self._bank)
         self._placeholders = []
 
     @property
+    def min_level(self):
+        """ The read-only minimum tile level in the bank. """
+        return self._min_level
+
+    @property
     def max_level(self):
+        """ The read-only maximum tile level in the bank. """
         return self._max_level
 
     def new_placeholder(self):
-        new_placeholder = Tile(BoundedInt(0, self._max_level),
+        """ Create a new placeholder tile associated with this bank. """
+        new_placeholder = Tile(BoundedInt(self.min_level, self.max_level),
                                placeholder=True)
         self._placeholders.append(new_placeholder)
         return new_placeholder
 
     def return_placeholder(self, placeholder):
-        assert placeholder.placeholder, "Returned placeholder not placeholder"
-        assert placeholder in self._placeholders, "Not from this tile bank"
+        """ Return a placeholder tile to the bank. """
+        if not placeholder.placeholder:
+            raise ValueError("Tried to return non-placeholder tile")
+        if placeholder not in self._placeholders:
+            raise ValueError("Tried to return placeholder not from this bank")
+
         self._placeholders.remove(placeholder)
 
     def take(self, level, neighbour_lvls_sum):
-        assert level in self._bank
-        assert self._bank[level] > 0
+        """ Take a tile from the bank's pool - one must be available. """
+        if level not in self._bank:
+            raise ValueError("Tried to take tile not present in bank")
+        if self._bank[level] <= 0:
+            raise ValueError("No tiles of this level left in bank")
+
+        new_tile = Tile(BoundedInt(level, level),
+                        neighbour_lvls_sum=neighbour_lvls_sum,
+                        placeholder=False)
+
         self._bank[level] -= 1
 
-        return Tile(BoundedInt(level, level),
-                    neighbour_lvls_sum=neighbour_lvls_sum,
-                    placeholder=False)
+        return new_tile

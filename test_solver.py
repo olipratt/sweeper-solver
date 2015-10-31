@@ -35,8 +35,9 @@ class TestRevealedAtLowerLevel(unittest.TestCase):
         self.tile_bank = TileBank({0: 100})
         self.board = GameBoard(10, 10, self.tile_bank)
         self.revealed_location = Point(1, 1)
-        self.board.set_tile(self.revealed_location,
-                            self.tile_bank.take(level=0, neighbour_lvls_sum=1))
+        self.board.set_revealed_tile(self.revealed_location,
+                                     self.tile_bank.take(level=0,
+                                                         neighbour_lvls_sum=1))
 
     def test_single_revealed_at_same_level(self):
         next_move = solver.make_move(1, self.board)
@@ -55,10 +56,13 @@ class TestRemainingNeighboursAtLowerLevel(unittest.TestCase):
         self.board = GameBoard(10, 10, self.tile_bank)
         self.revealed_location = Point(2, 2)
         self.revealed_neighbour = Point(1, 1)
-        self.board.set_tile(self.revealed_location,
-                            self.tile_bank.take(level=0, neighbour_lvls_sum=9))
-        self.board.set_tile(self.revealed_neighbour,
-                            self.tile_bank.take(level=8, neighbour_lvls_sum=19))
+        self.board.set_revealed_tile(self.revealed_location,
+                                     self.tile_bank.take(level=0,
+                                                         neighbour_lvls_sum=9))
+        self.board.set_revealed_tile(self.revealed_neighbour,
+                                     self.tile_bank.take(
+                                         level=8,
+                                         neighbour_lvls_sum=19))
 
     def test_remaining_neighbours_at_same_level(self):
         next_move = solver.make_move(1, self.board)
