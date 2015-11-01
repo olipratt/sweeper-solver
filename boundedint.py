@@ -4,6 +4,7 @@ An integer that may not be exactly known, so is represented by a set of bounds.
 
 
 class BoundedInt:
+    # Todo: Add docstings to all properties, magic methods, etc.
 
     def __init__(self, init_min, init_max):
         self._validate_initial_bounds(init_min, init_max)
@@ -14,9 +15,7 @@ class BoundedInt:
         if isinstance(other, int):
             return self.is_exact and self.exact == other
         elif isinstance(other, self.__class__):
-            return (self.is_exact and
-                    other.is_exact and
-                    (self.exact == other.exact))
+            return (self.min == other.min) and (self.max == other.max)
         else:
             return NotImplemented
 
@@ -113,6 +112,20 @@ class BoundedInt:
         self.min = new_exact
         self.max = new_exact
 
+    def intersection(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError("Can only take intersection with same type")
+
+        if (self.min > other.max) or (self.max < other.min):
+            # Ranges don't overlap at all.
+            return None
+
+        # Ranges must overlap somewhat.
+        new_min = max(self.min, other.min)
+        new_max = min(self.max, other.max)
+
+        return BoundedInt(new_min, new_max)
+
 
 if __name__ == "__main__":
     import unittest
@@ -129,23 +142,26 @@ if __name__ == "__main__":
         def test_same_bounds(self):
             self.assertEqual(BoundedInt(1, 1), BoundedInt(1, 1))
 
-        def test_same_instance(self):
+        def test_same_instance_exact(self):
             bounded = BoundedInt(1, 1)
             self.assertEqual(bounded, bounded)
+
+        def test_same_instance_range(self):
+            bounded = BoundedInt(1, 2)
+            self.assertEqual(bounded, bounded)
+
+        def test_same_bounds(self):
+            self.assertEqual(BoundedInt(1, 2), BoundedInt(1, 2))
 
         def test_exact(self):
             self.assertEqual(BoundedInt(1, 1), 1)
 
     class TestInequality(unittest.TestCase):
-        def test_same_bounds(self):
-            self.assertNotEqual(BoundedInt(1, 2), BoundedInt(1, 2))
-
-        def test_same_instance(self):
-            bounded = BoundedInt(1, 2)
-            self.assertNotEqual(bounded, bounded)
-
         def test_exact(self):
             self.assertNotEqual(BoundedInt(1, 1), 2)
+
+        def test_different_bounds(self):
+            self.assertNotEqual(BoundedInt(1, 3), BoundedInt(1, 2))
 
     class TestSameTypeComparisons(unittest.TestCase):
         def test_lt(self):
@@ -222,5 +238,37 @@ if __name__ == "__main__":
             self.bounded.exact = 5
             self.assertTrue(self.bounded.is_exact)
             self.assertEqual(self.bounded.exact, 5)
+
+    class TestIntersection(unittest.TestCase):
+        def setUp(self):
+            self.bounded = BoundedInt(1, 9)
+
+        def test_wrong_type(self):
+            self.assertRaises(TypeError, self.bounded.intersection, 'a')
+
+        def test_self_intersection(self):
+            self.assertEqual(self.bounded.intersection(self.bounded),
+                             self.bounded)
+
+        def test_no_intersection(self):
+            self.assertIsNone(self.bounded.intersection(BoundedInt(10, 11)))
+
+        def test_boundary_intersection(self):
+            self.assertEqual(self.bounded.intersection(BoundedInt(9, 11)),
+                             9)
+            self.assertEqual(self.bounded.intersection(BoundedInt(0, 1)),
+                             1)
+
+        def test_overlap_intersection(self):
+            self.assertEqual(self.bounded.intersection(BoundedInt(5, 11)),
+                             BoundedInt(5, 9))
+            self.assertEqual(self.bounded.intersection(BoundedInt(-3, 2)),
+                             BoundedInt(1, 2))
+
+        def test_contained_intersection(self):
+            self.assertEqual(self.bounded.intersection(BoundedInt(5, 7)),
+                             BoundedInt(5, 7))
+            self.assertEqual(BoundedInt(-5, 15).intersection(self.bounded),
+                             self.bounded)
 
     unittest.main()
