@@ -19,12 +19,18 @@ class Tile:
         self._placeholder = placeholder
 
     def __repr__(self):
-        return "%s(%r, %r)" % (self.__class__.__name__,
-                               self.enemy_lvl,
-                               self.neighbour_lvls_sum)
+        return "%s(%r, %r, %r)" % (self.__class__.__name__,
+                                   self.enemy_lvl,
+                                   self.neighbour_lvls_sum,
+                                   self.placeholder)
 
     def __str__(self):
-        return "%s/%02d" % (self.enemy_lvl, self.neighbour_lvls_sum)
+        placeholder_str = "?" if self.placeholder else "/"
+        if self.neighbour_lvls_sum is None:
+            neighbour_str = "--"
+        else:
+            neighbour_str = "%02d" % self.neighbour_lvls_sum
+        return "%s%s%s" % (self.enemy_lvl, placeholder_str, neighbour_str)
 
     @property
     def enemy_lvl(self):
