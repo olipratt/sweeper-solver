@@ -32,7 +32,7 @@ class TestRevealedAtLowerLevel(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tile_bank = TileBank({0: 100})
+        self.tile_bank = TileBank({0: 98, 1: 1, 5: 1})
         self.board = GameBoard(10, 10, self.tile_bank)
         self.revealed_location = Point(1, 1)
         self.board.set_revealed_tile(self.revealed_location,

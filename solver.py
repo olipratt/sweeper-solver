@@ -35,15 +35,13 @@ def make_move(level, game_board):
         log.debug("Determined starting move as: %r", next_point)
         return next_point
 
-    # Check for a tile with neighbours totaling just our level or lower.
-    for space in game_board.iter_unrevealed_spaces():
-        log.debug("Checking unrevealed space: %r", space)
-        for neighbour in game_board.iter_revealed_neighbours(space):
-            log.debug("Checking revealed neighbour space: %r", neighbour)
-            if game_board.unrevealed_neighbour_levels_sum(neighbour) <= level:
-                next_point = space.location
-                log.debug("Determined next move as: %r", next_point)
-                return next_point
+    # This isn't the first move - find a tile with an enemy of the given level
+    # or lower.
+    target_space = next(game_board.iter_unrevealed_below_level(level), None)
+    if target_space is not None:
+        next_point = target_space.location
+        log.debug("Determined next move as: %r", next_point)
+        return next_point
 
     log.error("Failed to determine next move")
     raise Exception("Failed to determine next move")
