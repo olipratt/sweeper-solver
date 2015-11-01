@@ -44,12 +44,6 @@ class Tile:
         """
         return self._neighbour_lvls_sum
 
-    @neighbour_lvls_sum.setter
-    def neighbour_lvls_sum(self, neighbour_lvls_sum):
-        assert self._neighbour_lvls_sum is None, \
-            "Can't set neighbour_lvls_sum twice"
-        self._neighbour_lvls_sum = neighbour_lvls_sum
-
     @property
     def placeholder(self):
         """ Whether this is a placeholder tile or not. """
