@@ -103,6 +103,17 @@ class GameBoard:
         """ The read only height of the board. """
         return self._height
 
+    def _get_space(self, location):
+        """ Get the space at the given location on the board. """
+        if not self._point_inside_board(location):
+            raise ValueError("Tried to get tile outside board")
+
+        return self._board[location.y][location.x]
+
+    def get_tile(self, location):
+        """ Get the tile at the given location on the board. """
+        return self._get_space(location).tile
+
     def iter_spaces(self):
         """ Return an iterator over all spaces in the board. """
         return (space for row in self._board for space in row)
@@ -165,10 +176,7 @@ class GameBoard:
 
     def set_revealed_tile(self, location, tile):
         """ Set the tile at the given coordinates to the given tile. """
-        if not self._point_inside_board(location):
-            raise ValueError("Tried to set revealed tile outside board")
-
-        space = self._board[location.y][location.x]
+        space = self._get_space(location)
         placeholder = space.replace_placeholder(tile)
         self._tile_bank.return_placeholder(placeholder)
 
@@ -207,12 +215,14 @@ class GameBoard:
 
         :return: Returns True if the space was actually modified in any way.
         """
+        log.debug("Updating bounds on unrevealed space: %r", space)
         if space.revealed:
             raise ValueError("Require unrevealed space")
 
         any_updates = False
 
         for neighbour in self.iter_revealed_neighbours(space):
+            log.debug("Updating bounds based on neighbour: %r", neighbour)
             new_bounds = self.space_level_bounds_from_neighbour(space,
                                                                 neighbour)
             updated = space.tile.restrict_enemy_level(new_bounds)
