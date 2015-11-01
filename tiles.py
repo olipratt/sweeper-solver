@@ -55,6 +55,25 @@ class Tile:
         """ Whether this is a placeholder tile or not. """
         return self._placeholder
 
+    def restrict_enemy_level(self, new_bounds):
+        """ Tighten the bounds on the enemy level if at all possible using the
+            new bounds provided - hence this must be a placeholder tile.
+
+        :return: True if the bounds on this tile were updated at all.
+        """
+        if not self.placeholder:
+            raise ValueError("Can't update bounds on non-placeholder tile")
+
+        intersection = self.enemy_lvl.intersection(new_bounds)
+        if intersection is None:
+            raise ValueError("New bounds don't intersect existing bounds")
+
+        if intersection == self.enemy_lvl:
+            return False
+        else:
+            self._enemy_lvl = intersection
+            return True
+
 
 class TileBank:
     """ A collection of tiles with limits, which can be drawn from. """
