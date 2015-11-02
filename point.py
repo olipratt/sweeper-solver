@@ -5,11 +5,11 @@ from math import sqrt
 
 
 class Point:
-    """ Represents a 2d point. """
+    """ Represents an immutable 2d point. """
 
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
 
     def __eq__(self, other):
         return (self.x == other.x) and (self.y == other.y)
@@ -19,6 +19,16 @@ class Point:
 
     def __str__(self):
         return "(%s, %s)" % (self.x, self.y)
+
+    @property
+    def x(self):
+        """ Get the x coordinated of the point. """
+        return self._x
+
+    @property
+    def y(self):
+        """ Get the y coordinated of the point. """
+        return self._y
 
     def chebyshev_distance(self, other_point):
         """ 'Chessboard' distance between two points. """
