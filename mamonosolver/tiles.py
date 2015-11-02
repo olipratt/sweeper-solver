@@ -40,7 +40,8 @@ class Tile:
     @property
     def neighbour_lvls_sum(self):
         """ The sum of levels of enemies on all neighbouring tiles.
-        Is None until the value is set, at which point it can't be set again.
+
+        Is None on a placeholder, and a fixed value on a non-placeholder.
         """
         return self._neighbour_lvls_sum
 
