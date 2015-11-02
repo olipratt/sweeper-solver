@@ -3,7 +3,7 @@ Representations of a tile for a game board, and a bank of available tiles.
 """
 import logging
 
-from boundedint import BoundedInt
+from .boundedint import BoundedInt
 
 log = logging.getLogger(__name__)
 

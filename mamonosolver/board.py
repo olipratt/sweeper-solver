@@ -3,8 +3,8 @@ Object to represent a game board.
 """
 import logging
 
-from point import Point
-from boundedint import BoundedInt
+from .point import Point
+from .boundedint import BoundedInt
 
 
 log = logging.getLogger(__name__)

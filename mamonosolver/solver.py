@@ -15,7 +15,7 @@ is either:
 """
 import logging
 
-from point import Point
+from .point import Point
 
 
 log = logging.getLogger(__name__)

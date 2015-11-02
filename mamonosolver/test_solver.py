@@ -3,10 +3,10 @@ Tests for the solver.
 """
 import unittest
 
-from point import Point
-from tiles import TileBank
-from board import GameBoard
-import solver
+from .point import Point
+from .tiles import TileBank
+from .board import GameBoard
+from . import solver
 
 
 # import logging
@@ -23,7 +23,7 @@ class TestFirstMove(unittest.TestCase):
 
     def test_first_move(self):
         next_move = solver.make_move(1, self.board)
-        self.assertEquals(next_move, self.board_center)
+        self.assertEqual(next_move, self.board_center)
 
 
 class TestRevealedAtLowerLevel(unittest.TestCase):
