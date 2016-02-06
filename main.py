@@ -5,7 +5,7 @@ from queue import Queue
 import logging
 
 from cli import CLIInput
-from mamonosolver import GameBoard, TileBank, Point, make_move
+from sweepersolver import GameBoard, TileBank, Point, make_move
 
 
 log = logging.getLogger(__name__)

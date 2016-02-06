@@ -3,9 +3,9 @@ Tests for the solver.
 """
 import unittest
 
-from .point import Point
-from .tiles import TileBank
-from .board import GameBoard
+from ..point import Point
+from ..tiles import TileBank
+from ..board import GameBoard
 from . import solver
 
 

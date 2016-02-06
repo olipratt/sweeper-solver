@@ -107,6 +107,9 @@ if __name__ == "__main__":
         def test_same_bounds(self):
             self.assertEqual(BoundedInt(1, 1), BoundedInt(1, 1))
 
+        def test_same_bounds_2(self):
+            self.assertEqual(BoundedInt(1, 2), BoundedInt(1, 2))
+
         def test_same_instance_exact(self):
             bounded = BoundedInt(1, 1)
             self.assertEqual(bounded, bounded)
@@ -114,9 +117,6 @@ if __name__ == "__main__":
         def test_same_instance_range(self):
             bounded = BoundedInt(1, 2)
             self.assertEqual(bounded, bounded)
-
-        def test_same_bounds(self):
-            self.assertEqual(BoundedInt(1, 2), BoundedInt(1, 2))
 
         def test_exact(self):
             self.assertEqual(BoundedInt(1, 1), 1)
