@@ -176,6 +176,7 @@ class GameBoard:
 
     def set_revealed_tile(self, location, tile):
         """ Set the tile at the given coordinates to the given tile. """
+        log.debug("Setting revealed tile %r at location: %r", tile, location)
         space = self._get_space(location)
         placeholder = space.replace_placeholder(tile)
         self._tile_bank.return_placeholder(placeholder)
