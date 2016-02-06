@@ -1,1 +1,2 @@
-from .tiles import Tile, TileBank
+from .tile import Tile
+from .tilebank import TileBank
