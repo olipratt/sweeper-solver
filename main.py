@@ -1,5 +1,5 @@
 """
-Run the solver with a user interface.
+Run the solver in the requested mode.
 """
 import sys
 import logging
