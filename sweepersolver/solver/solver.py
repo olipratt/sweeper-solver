@@ -37,12 +37,14 @@ def make_move(level, game_board):
         return next_point
 
     # This isn't the first move - find a tile with an enemy of the given level
-    # or lower.
-    target_space = next(game_board.iter_unrevealed_below_level(level), None)
-    if target_space is not None:
-        next_point = target_space.location
-        log.debug("Determined next move as: %r", next_point)
-        return next_point
+    # or lower if possible.
+    safe_move = next(game_board.iter_unrevealed_below_level(level), None)
+    if safe_move is not None:
+        best_move = max(game_board.iter_unrevealed_below_level(level),
+                        key=lambda space: (space.tile.enemy_lvl.max +
+                                           space.tile.enemy_lvl.min))
+        log.debug("Determined next move as: %r", best_move)
+        return best_move.location
 
     return random.choice(list(game_board.iter_unrevealed_spaces())).location
 
