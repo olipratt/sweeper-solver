@@ -41,6 +41,17 @@ class Point:
         """ 'Normal' distance between two points. """
         return sqrt((self.x - other_point.x)**2 + (self.y - other_point.y)**2)
 
+    def all_chebyshev_neighbours(self):
+        """ Returns a list of all points chebyshev distance 1 away. """
+        return [Point(self.x - 1, self.y - 1),
+                Point(self.x - 1, self.y),
+                Point(self.x - 1, self.y + 1),
+                Point(self.x, self.y - 1),
+                Point(self.x, self.y + 1),
+                Point(self.x + 1, self.y - 1),
+                Point(self.x + 1, self.y),
+                Point(self.x + 1, self.y + 1)]
+
 
 if __name__ == "__main__":
     import unittest
