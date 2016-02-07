@@ -103,7 +103,7 @@ def run_interactive():
     interface = CLIInput(to_user_q, from_user_q)
     interface.start()
 
-    to_user_q.put("Welcome to the mamonosolver!")
+    to_user_q.put("Welcome to the sweepersolver!")
 
     width, height, enemies = _get_initial_parameters(to_user_q, from_user_q)
     tile_bank = TileBank(enemies)

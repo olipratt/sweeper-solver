@@ -1,5 +1,5 @@
 """
-Solver for mamono sweeper.
+Solver for sweeper games.
 
 The main API function is 'next_move' - this returns the next location to
 reveal.

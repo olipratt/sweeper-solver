@@ -6,7 +6,6 @@ import random
 
 from ..board import GameBoard
 from ..tiles import TileBank
-from ..point import Point
 from ..player import Player, PlayerDiedError
 
 log = logging.getLogger(__name__)
@@ -82,23 +81,21 @@ class LocalGame(object):
         if len(enemy_list) != (self._height * self._width):
             raise ValueError("Must have an enemy for every board space")
 
-        board_spaces = [Point(x, y)
-                        for y in range(self._height)
-                        for x in range(self._width)]
-        enemy_spaces = random.sample(board_spaces, len(enemy_list))
+        random.shuffle(enemy_list)
 
-        spaces_to_enemies = {space: enemy
-                             for space, enemy in zip(enemy_spaces, enemy_list)}
+        spaces_to_enemies = {space.location: enemy
+                             for space, enemy in
+                             zip(self._board.iter_spaces(), enemy_list)}
         log.debug("Decided enemy locations: %r", spaces_to_enemies)
 
         tiles_by_locations = {}
-        for space in board_spaces:
+        for space in self._board.iter_spaces():
             log.debug("Placing tile in space: %r", space)
             neighbour_levels_sum = \
-                sum(spaces_to_enemies.get(neighbour, 0)
-                    for neighbour in space.all_chebyshev_neighbours())
-            space_tile = self._tile_bank.take(spaces_to_enemies[space],
-                                              neighbour_levels_sum)
-            tiles_by_locations[space] = space_tile
+                sum(spaces_to_enemies[neighbour.location]
+                    for neighbour in self._board.iter_neighbours(space))
+            tile = self._tile_bank.take(spaces_to_enemies[space.location],
+                                        neighbour_levels_sum)
+            tiles_by_locations[space.location] = tile
 
         self._board.bulk_reveal_tiles(tiles_by_locations)
