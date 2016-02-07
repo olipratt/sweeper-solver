@@ -16,6 +16,16 @@ LEVEL_TO_XP = {0: 0,
                7: 64,
                8: 128,
                9: 256}
+XP_THRESHOLDS_DEFAULT = {1: 0,
+                         2: 2,
+                         3: 10,
+                         4: 150,
+                         5: 540,
+                         6: 1116,
+                         7: 2268,
+                         8: 4572,
+                         9: 9180,
+                         10: 100000}
 
 
 class PlayerDiedError(Exception):
@@ -25,10 +35,10 @@ class PlayerDiedError(Exception):
 class Player:
     """ The player character in the game. """
 
-    def __init__(self, hp, xp_thresholds, level=1):
+    def __init__(self, hp=10, xp_thresholds=XP_THRESHOLDS_DEFAULT, level=1):
         self._level = level
         self._hp = hp
-        self._xp = 0
+        self._xp = xp_thresholds[level]
         self._xp_thresholds = xp_thresholds
 
     @property
