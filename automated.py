@@ -4,19 +4,18 @@ Run the solver against an automated game locally.
 import logging
 from collections import Counter
 
-from sweepersolver import (GameBoard, TileBank, make_move, LocalGame,
-                           DIFFICULTY_EASY, DIFFICULTY_HUGE_EX)
+from sweepersolver import GameBoard, TileBank, make_move, LocalGame
 
 log = logging.getLogger(__name__)
 
 
-def run_automated():
-    enemies = Counter(DIFFICULTY_HUGE_EX["enemies"])
-    local_game = LocalGame(DIFFICULTY_HUGE_EX)
+def run_automated(difficulty):
+    enemies = Counter(difficulty["enemies"])
+    local_game = LocalGame(difficulty)
 
     tile_bank = TileBank(enemies)
-    game_board = GameBoard(DIFFICULTY_HUGE_EX["width"],
-                           DIFFICULTY_HUGE_EX["height"],
+    game_board = GameBoard(difficulty["width"],
+                           difficulty["height"],
                            tile_bank)
 
     while not local_game.is_complete:
