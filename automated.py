@@ -28,12 +28,13 @@ def run_automated(difficulty, pause=0):
         next_location = make_move(local_game.player, game_board)
 
         log.info("Playing location: %s", next_location)
-        time.sleep(pause)
 
         local_revealed_tile = local_game.reveal(next_location)
         log.info("Location contained: %s", local_revealed_tile)
         bank_tile = tile_bank.take(local_revealed_tile.enemy_lvl.exact,
                                    local_revealed_tile.neighbour_lvls_sum)
         game_board.set_revealed_tile(next_location, bank_tile)
+
+        time.sleep(pause)
 
     log.info("Game won!")
