@@ -46,6 +46,11 @@ def make_move(level, game_board):
         log.debug("Determined next move as: %r", best_move)
         return best_move.location
 
+    # There are no safe moves - pick a move we at least know we can survive.
+    # Todo.
+
+    # There's no known move we can survive. Pick a random one from all those
+    # which are at least not certain to kill us.
     return random.choice(list(game_board.iter_unrevealed_spaces())).location
 
     log.error("Failed to determine next move")

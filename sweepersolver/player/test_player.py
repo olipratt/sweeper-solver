@@ -19,7 +19,7 @@ class TestPlayerDeath(unittest.TestCase):
     """ Test that the player dies correctly. """
 
     def test_immediate_death(self):
-        player = Player(XP_THRESHOLDS)
+        player = Player(10, XP_THRESHOLDS)
 
         self.assertRaises(PlayerDiedError, player.battle, 9)
 
@@ -28,7 +28,7 @@ class TestLevelUp(unittest.TestCase):
     """ Test that the player levels up correctly. """
 
     def test_single_level_up(self):
-        player = Player(XP_THRESHOLDS)
+        player = Player(10, XP_THRESHOLDS)
         for iteration in range(10):
             player.battle(1)
 
@@ -41,7 +41,7 @@ class TestTakeDamage(unittest.TestCase):
     """ Test that the player takes damage correctly. """
 
     def test_single_damage(self):
-        player = Player(XP_THRESHOLDS)
+        player = Player(10, XP_THRESHOLDS)
         player.battle(2)
 
         self.assertEqual(player.xp, 2)

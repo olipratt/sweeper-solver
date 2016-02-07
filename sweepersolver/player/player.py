@@ -25,9 +25,9 @@ class PlayerDiedError(Exception):
 class Player:
     """ The player character in the game. """
 
-    def __init__(self, xp_thresholds):
+    def __init__(self, hp, xp_thresholds):
         self._level = 1
-        self._hp = 10
+        self._hp = hp
         self._xp = 0
         self._xp_thresholds = xp_thresholds
 
