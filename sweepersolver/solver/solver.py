@@ -73,7 +73,7 @@ def make_move(player, game_board):
 
 def score_safe_move(space):
     """ Assign a score to a safe move, where the highest score is best.
-        The best move is one where we attack the lowest level enemy.
+        The best move is one where we attack the highest level enemy.
     """
     return space.tile.enemy_lvl.max + space.tile.enemy_lvl.min
 

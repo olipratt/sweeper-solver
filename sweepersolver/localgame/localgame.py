@@ -91,6 +91,7 @@ class LocalGame(object):
                              for space, enemy in zip(enemy_spaces, enemy_list)}
         log.debug("Decided enemy locations: %r", spaces_to_enemies)
 
+        tiles_by_locations = {}
         for space in board_spaces:
             log.debug("Placing tile in space: %r", space)
             neighbour_levels_sum = \
@@ -98,4 +99,6 @@ class LocalGame(object):
                     for neighbour in space.all_chebyshev_neighbours())
             space_tile = self._tile_bank.take(spaces_to_enemies[space],
                                               neighbour_levels_sum)
-            self._board.set_revealed_tile(space, space_tile)
+            tiles_by_locations[space] = space_tile
+
+        self._board.bulk_reveal_tiles(tiles_by_locations)

@@ -32,6 +32,18 @@ class BoardSpace:
         """ The Tile in this space on the board. """
         return self._tile
 
+    @property
+    def location(self):
+        """ The coordinates of this tile on the game board. """
+        return self._location
+
+    @property
+    def revealed(self):
+        """ Whether this space is revealed, and so if the tile in this space is
+            a placeholder or not.
+        """
+        return not self.tile.placeholder
+
     def replace_placeholder(self, new_tile):
         """ Replace a placeholder tile with an actual tile, returning the
             placeholder.
@@ -45,18 +57,6 @@ class BoardSpace:
         self._tile = new_tile
 
         return old_tile
-
-    @property
-    def location(self):
-        """ The coordinates of this tile on the game board. """
-        return self._location
-
-    @property
-    def revealed(self):
-        """ Whether this space is revealed, and so if the tile in this space is
-            a placeholder or not.
-        """
-        return not self.tile.placeholder
 
     def is_neighbour(self, neighbour):
         """ Returns True if this space neighbours the given space. """
@@ -168,18 +168,6 @@ class GameBoard:
         return (space for space in self.iter_unrevealed_spaces()
                 if space.tile.enemy_lvl <= level)
 
-    def unrevealed_neighbour_levels_sum(self, space):
-        """ The sum of the levels of the unrevealed neighbours of a space. """
-        if not space.revealed:
-            raise ValueError("Cannot calculate for unrevealed space")
-
-        result = space.tile.neighbour_lvls_sum
-        result -= sum(neighbour.tile.enemy_lvl.exact
-                      for neighbour in self.iter_revealed_neighbours(space))
-
-        log.debug("Found remaining unrevealed neighbours as: %r", result)
-        return result
-
     def _point_inside_board(self, point):
         """ Check that the given point is that of a space on the board. """
         return (0 <= point.x < self.width) and (0 <= point.y < self.height)
@@ -192,6 +180,22 @@ class GameBoard:
         self._tile_bank.return_placeholder(placeholder)
 
         self._update_board_after_reveal(space)
+
+    def bulk_reveal_tiles(self, tiles_by_locations):
+        """ Given a mapping of locations to tiles, set all those locations
+            to contain their given tiles.
+        """
+        log.debug("Setting revealed tiles: %r", tiles_by_locations)
+        updated_spaces = []
+        for location, tile in tiles_by_locations.items():
+            space = self._get_space(location)
+            placeholder = space.replace_placeholder(tile)
+            self._tile_bank.return_placeholder(placeholder)
+
+            updated_spaces.append(space)
+
+        for space in updated_spaces:
+            self._update_board_after_reveal(space)
 
     def space_level_bounds_from_neighbour(self, space, neighbour):
         """ Given a space and one of its neighbours, examine all other
