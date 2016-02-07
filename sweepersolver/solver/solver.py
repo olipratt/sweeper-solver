@@ -14,6 +14,7 @@ is either:
 
 """
 import logging
+import random
 
 from ..point import Point
 
@@ -42,6 +43,8 @@ def make_move(level, game_board):
         next_point = target_space.location
         log.debug("Determined next move as: %r", next_point)
         return next_point
+
+    return random.choice(list(game_board.iter_unrevealed_spaces())).location
 
     log.error("Failed to determine next move")
     raise Exception("Failed to determine next move")
