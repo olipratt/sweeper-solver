@@ -6,6 +6,7 @@ import unittest
 from ..point import Point
 from ..tiles import TileBank
 from ..board import GameBoard
+from ..player import Player
 from . import solver
 
 
@@ -20,9 +21,10 @@ class TestFirstMove(unittest.TestCase):
         self.tile_bank = TileBank({0: 9})
         self.board = GameBoard(3, 3, self.tile_bank)
         self.board_center = Point(1, 1)
+        self.test_player = Player(10, {})
 
     def test_first_move(self):
-        next_move = solver.make_move(1, self.board)
+        next_move = solver.make_move(self.test_player, self.board)
         self.assertEqual(next_move, self.board_center)
 
 
@@ -38,9 +40,10 @@ class TestRevealedAtLowerLevel(unittest.TestCase):
         self.board.set_revealed_tile(self.revealed_location,
                                      self.tile_bank.take(level=0,
                                                          neighbour_lvls_sum=1))
+        self.test_player = Player(10, {})
 
     def test_single_revealed_at_same_level(self):
-        next_move = solver.make_move(1, self.board)
+        next_move = solver.make_move(self.test_player, self.board)
         self.assertEqual(next_move.chebyshev_distance(self.revealed_location),
                          1)
 
@@ -63,9 +66,10 @@ class TestRemainingNeighboursAtLowerLevel(unittest.TestCase):
                                      self.tile_bank.take(
                                          level=8,
                                          neighbour_lvls_sum=19))
+        self.test_player = Player(10, {})
 
     def test_remaining_neighbours_at_same_level(self):
-        next_move = solver.make_move(1, self.board)
+        next_move = solver.make_move(self.test_player, self.board)
         self.assertEqual(next_move.chebyshev_distance(self.revealed_location),
                          1)
         self.assertNotEqual(next_move, self.revealed_neighbour)
@@ -125,11 +129,12 @@ class TestMultistageBoardStatePropagation(unittest.TestCase):
                                      self.tile_bank.take(
                                          level=0,
                                          neighbour_lvls_sum=20))
+        self.test_player = Player(10, {})
 
     def test_propagation(self):
         # Useful for debugging:
         # print(self.board)
-        next_move = solver.make_move(1, self.board)
+        next_move = solver.make_move(self.test_player, self.board)
         self.assertEqual(next_move.chebyshev_distance(self.start_location_1),
                          1)
         self.assertLessEqual(self.board.get_tile(self.a_goal_space).enemy_lvl,

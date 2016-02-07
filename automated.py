@@ -22,7 +22,7 @@ def run_automated():
     while not local_game.is_complete:
         print("Game state:\n%s" % local_game)
         print("Player knowledge:\n%s" % game_board)
-        next_location = make_move(local_game.player.level, game_board)
+        next_location = make_move(local_game.player, game_board)
 
         print("Playing location: %s" % next_location)
         local_revealed_tile = local_game.reveal(next_location)

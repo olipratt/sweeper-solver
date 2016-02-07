@@ -22,36 +22,68 @@ from ..point import Point
 log = logging.getLogger(__name__)
 
 
-def make_move(level, game_board):
+def make_move(player, game_board):
     """ Make the next move.
     :return: The point to reveal next.
     """
-    log.debug("Determining move at level: %r on board:\n%s", level, game_board)
-    assert level > 0, "Negative or zero level is invalid"
+    log.debug("Determining move for player: %s board:\n%s", player, game_board)
 
     # Handle the case where this is the first move.
     if game_board.in_start_state():
-        log.debug("Board is in initial state - return center point: %r", level)
+        log.debug("Board is in initial state - return center point")
         next_point = Point(game_board.width // 2, game_board.height // 2)
         log.debug("Determined starting move as: %r", next_point)
         return next_point
 
     # This isn't the first move - find a tile with an enemy of the given level
     # or lower if possible.
-    safe_move = next(game_board.iter_unrevealed_below_level(level), None)
+    safe_move = next(game_board.iter_unrevealed_below_level(player.level),
+                     None)
     if safe_move is not None:
-        best_move = max(game_board.iter_unrevealed_below_level(level),
-                        key=lambda space: (space.tile.enemy_lvl.max +
-                                           space.tile.enemy_lvl.min))
+        log.debug("There exists a safe move - find the best one")
+        # The best move is one where we attack the highest level enemy.
+        best_move = max(game_board.iter_unrevealed_below_level(player.level),
+                        key=score_safe_move)
         log.debug("Determined next move as: %r", best_move)
         return best_move.location
 
     # There are no safe moves - pick a move we at least know we can survive.
-    # Todo.
+    survivable_level = player.highest_survivable_enemy
+    survivable_move = \
+        next(game_board.iter_unrevealed_below_level(survivable_level), None)
+    if survivable_move is not None:
+        log.debug("There exists a survivable move - find the best")
+        # The best move is one where we attack the lowest level enemy.
+        best_move = \
+            min(game_board.iter_unrevealed_below_level(survivable_level),
+                key=score_survivable_move)
+        log.debug("Determined next move as: %r", best_move)
+        return best_move.location
 
     # There's no known move we can survive. Pick a random one from all those
     # which are at least not certain to kill us.
-    return random.choice(list(game_board.iter_unrevealed_spaces())).location
+    log.debug("Forced to pick random non-guaranteed-death move")
+    random_move = \
+        random.choice(list(space
+                           for space in game_board.iter_unrevealed_spaces()
+                           if space.tile.enemy_lvl.min <= survivable_level))
+    log.debug("Determined next move as: %r", random_move)
+    return random_move.location
 
-    log.error("Failed to determine next move")
-    raise Exception("Failed to determine next move")
+
+def score_safe_move(space):
+    """ Assign a score to a safe move, where the highest score is best.
+        The best move is one where we attack the lowest level enemy.
+    """
+    return space.tile.enemy_lvl.max + space.tile.enemy_lvl.min
+
+
+def score_survivable_move(space):
+    """ Assign a score to a survivable move, where the lowest score is safest.
+        The safest move is one with the lowest possible maximum level, and
+        of those with the lowest max, the one with the greatest possible
+        level range.
+    """
+    return (space.tile.enemy_lvl.max -
+            ((space.tile.enemy_lvl.max - space.tile.enemy_lvl.min) /
+             (space.tile.enemy_lvl.max + 1)))

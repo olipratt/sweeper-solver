@@ -5,7 +5,7 @@ from queue import Queue
 import logging
 
 from cli import CLIInput
-from sweepersolver import GameBoard, TileBank, Point, make_move
+from sweepersolver import GameBoard, TileBank, Point, Player, make_move
 
 
 log = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def _output_game_state(to_user_q, board, level):
 
 
 def _output_next_move(to_user_q, game_board, level):
-    next_move = make_move(level, game_board)
+    next_move = make_move(Player(10, {}, level=level), game_board)
     to_user_q.put("Next move: %s" % next_move)
 
 

@@ -47,3 +47,17 @@ class TestTakeDamage(unittest.TestCase):
         self.assertEqual(player.xp, 2)
         self.assertEqual(player.level, 1)
         self.assertEqual(player.hp, 8)
+
+
+class TestHighestSurvivable(unittest.TestCase):
+    """ Test that the highest level the player can survive is correct. """
+
+    def test_start_state(self):
+        player = Player(10, XP_THRESHOLDS)
+
+        self.assertEqual(player.highest_survivable_enemy, 3)
+
+    def test_same_level(self):
+        player = Player(1, XP_THRESHOLDS)
+
+        self.assertEqual(player.highest_survivable_enemy, 1)

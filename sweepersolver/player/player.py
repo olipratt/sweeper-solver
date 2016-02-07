@@ -25,8 +25,8 @@ class PlayerDiedError(Exception):
 class Player:
     """ The player character in the game. """
 
-    def __init__(self, hp, xp_thresholds):
-        self._level = 1
+    def __init__(self, hp, xp_thresholds, level=1):
+        self._level = level
         self._hp = hp
         self._xp = 0
         self._xp_thresholds = xp_thresholds
@@ -42,6 +42,14 @@ class Player:
     @property
     def xp(self):
         return self._xp
+
+    @property
+    def highest_survivable_enemy(self):
+        """ Get the highest level enemy the player can face without dying. """
+        survivable_level = self.level
+        while (self._calc_damage(survivable_level + 1) < self.hp):
+            survivable_level += 1
+        return survivable_level
 
     def __str__(self):
         return ("Player:: Level: %s, HP: %s, XP: %s" %
