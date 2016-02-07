@@ -12,6 +12,14 @@ from ..player import Player, PlayerDiedError
 log = logging.getLogger(__name__)
 
 
+XP_THRESHOLDS = {1: 0,
+                 2: 10,
+                 3: 20,
+                 4: 40,
+                 5: 82,
+                 6: 100000}
+
+
 class GameOverError(Exception):
     pass
 
@@ -30,7 +38,7 @@ class LocalGame(object):
 
         self._place_enemies(list(enemy_counter.elements()))
 
-        self._player = Player()
+        self._player = Player(XP_THRESHOLDS)
 
         self._revealed_locations = []
 
@@ -38,9 +46,15 @@ class LocalGame(object):
         enemy_counts_str = ", ".join("%s: %s" % (enemy, count)
                                      for enemy, count in
                                      self._enemy_counter.items())
-        return "%s\nEnemies:: %s\n%s" % (self._board,
-                                         enemy_counts_str,
-                                         self._player)
+        return ("%s\nRevealed locations: %s\nEnemies:: %s\n%s" %
+                (self._board,
+                 self._revealed_locations,
+                 enemy_counts_str,
+                 self._player))
+
+    @property
+    def player(self):
+        return self._player
 
     def reveal(self, location):
         if location in self._revealed_locations:
@@ -51,13 +65,16 @@ class LocalGame(object):
         try:
             self._player.battle(tile.enemy_lvl.exact)
         except PlayerDiedError:
-            raise GameOverError("Player Died!")
+            raise GameOverError("Player Died! Killed by enemy: %s" %
+                                tile.enemy_lvl.exact)
 
         self._enemy_counter.subtract({tile.enemy_lvl.exact: 1})
+        return tile
 
     @property
     def is_complete(self):
-        return sum(self._enemy_counter.values()) == 0
+        return (sum(value for key, value in self._enemy_counter.items()
+                    if key is not 0) == 0)
 
     def _new_board(self):
         return [[self._new_space() for i in range(self.width)]
@@ -82,9 +99,8 @@ class LocalGame(object):
         for space in board_spaces:
             log.debug("Placing tile in space: %r", space)
             neighbour_levels_sum = \
-                sum(spaces_to_enemies[neighbour]
-                    for neighbour in board_spaces
-                    if space.chebyshev_distance(neighbour) == 1)
+                sum(spaces_to_enemies.get(neighbour, 0)
+                    for neighbour in space.all_chebyshev_neighbours())
             space_tile = self._tile_bank.take(spaces_to_enemies[space],
                                               neighbour_levels_sum)
             self._board.set_revealed_tile(space, space_tile)

@@ -5,6 +5,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 LEVEL_TO_XP = {0: 0,
                1: 1,
                2: 2,
@@ -15,7 +16,6 @@ LEVEL_TO_XP = {0: 0,
                7: 64,
                8: 128,
                9: 256}
-XP_THRESHOLDS = [0, 10, 40, 10000000]
 
 
 class PlayerDiedError(Exception):
@@ -25,22 +25,31 @@ class PlayerDiedError(Exception):
 class Player:
     """ The player character in the game. """
 
-    def __init__(self):
-        self.level = 1
-        self.hp = 10
-        self.xp = 0
+    def __init__(self, xp_thresholds):
+        self._level = 1
+        self._hp = 10
+        self._xp = 0
+        self._xp_thresholds = xp_thresholds
+
+    @property
+    def level(self):
+        return self._level
+
+    @property
+    def hp(self):
+        return self._hp
+
+    @property
+    def xp(self):
+        return self._xp
 
     def __str__(self):
         return ("Player:: Level: %s, HP: %s, XP: %s" %
                 (self.level, self.hp, self.xp))
 
     def battle(self, enemy_level):
-        self.hp -= self._damage_taken(enemy_level)
-        if self.hp <= 0:
-            raise PlayerDiedError("Player died!")
-
-        self.xp += self._calc_xp(enemy_level)
-        self._check_for_level_up()
+        self._take_danage(enemy_level)
+        self._gain_xp(enemy_level)
 
     def _calc_damage(self, enemy_level):
         """ Damage is dealt by the player and the enemy both equal to their
@@ -51,7 +60,10 @@ class Player:
         return ((((enemy_level + self.level - 1) // self.level) - 1) *
                 enemy_level)
 
-    def _damage_taken(self, enemy_level):
+    def _take_danage(self, enemy_level):
+        """ Update the player's HP based on battling an enemy of the given
+            level, and raise an error if they die.
+        """
         level_diff = self.level - enemy_level
         if level_diff < 0:
             damage_taken = self._calc_damage(enemy_level)
@@ -59,12 +71,18 @@ class Player:
             damage_taken = 0
 
         log.debug("Player took damage: %r", damage_taken)
-        return damage_taken
+        self._hp -= damage_taken
 
-    def _calc_xp(self, enemy_level):
-        return LEVEL_TO_XP[enemy_level]
+        if self.hp <= 0:
+            raise PlayerDiedError("Player died!")
 
-    def _check_for_level_up(self):
-        while (self.xp > XP_THRESHOLDS[self.level + 1]):
+    def _gain_xp(self, enemy_level):
+        """ Increment the player's XP after killing an enemy. """
+        self._xp += LEVEL_TO_XP[enemy_level]
+        self._perform_any_level_ups()
+
+    def _perform_any_level_ups(self):
+        """ Perform any level ups after the player's XP changes. """
+        while (self.xp >= self._xp_thresholds[self.level + 1]):
             log.debug("Level up to level: %r", self.level + 1)
-            self.level += 1
+            self._level += 1
