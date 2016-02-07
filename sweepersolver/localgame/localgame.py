@@ -20,7 +20,6 @@ class LocalGame(object):
     """ A local game to play against. """
 
     def __init__(self, difficulty):
-        super(LocalGame, self).__init__()
         self._width = difficulty["width"]
         self._height = difficulty["height"]
         self._enemy_counter = difficulty["enemies"]
@@ -49,6 +48,9 @@ class LocalGame(object):
         return self._player
 
     def reveal(self, location):
+        """ Reveal and return a tile, forcing the player to battle any enemy
+            on it. If the player dies, an error is raised.
+        """
         if location in self._revealed_locations:
             raise ValueError("Can't reveal same location twice")
         self._revealed_locations.append(location)
@@ -65,27 +67,24 @@ class LocalGame(object):
 
     @property
     def is_complete(self):
+        """ The game is complete when all (non-zero) enemies are defeated. """
         return (sum(value for key, value in self._enemy_counter.items()
                     if key is not 0) == 0)
 
-    def _new_board(self):
-        return [[self._new_space() for i in range(self.width)]
-                for j in range(self.height)]
-
-    def _new_space(self):
-        return {"revealed": False, "enemy": None}
-
     def _place_enemies(self, enemy_list):
+        """ Randomly place the enemies on the board. """
         log.debug("Placing enemies: %r", enemy_list)
+
+        if len(enemy_list) != (self._height * self._width):
+            raise ValueError("Must have an enemy for every board space")
+
         board_spaces = [Point(x, y)
                         for y in range(self._height)
                         for x in range(self._width)]
         enemy_spaces = random.sample(board_spaces, len(enemy_list))
 
-        spaces_to_enemies = {space: 0 for space in board_spaces}
-        spaces_to_enemies.update({space: enemy
-                                  for space, enemy in zip(enemy_spaces,
-                                                          enemy_list)})
+        spaces_to_enemies = {space: enemy
+                             for space, enemy in zip(enemy_spaces, enemy_list)}
         log.debug("Decided enemy locations: %r", spaces_to_enemies)
 
         for space in board_spaces:
