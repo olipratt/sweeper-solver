@@ -94,6 +94,15 @@ class GameBoard:
         return "%s\n%s\n%s" % (border, inner_border.join(row_strs), border)
 
     @property
+    def condensed_repr(self):
+        """ A minimal string representaton of the board. """
+        row_strs = ["".join(str(space.tile.enemy_lvl.exact)
+                            if space.revealed else '?'
+                            for space in row)
+                    for row in self._board]
+        return "\n".join(row_strs)
+
+    @property
     def width(self):
         """ The read only width of the board. """
         return self._width

@@ -35,6 +35,11 @@ def _set_up_arg_parser():
                         choices=DIFFICULTY_MAP.keys(),
                         default=DIFFICULTY_EASY,
                         help="Select difficulty")
+    parser.add_argument('-p',
+                        dest="pause",
+                        type=float,
+                        default=0,
+                        help="Time to pause between moves")
     return parser
 
 
@@ -45,4 +50,6 @@ if __name__ == "__main__":
     if args.interactive:
         run_interactive()
     if args.automated:
-        run_automated(DIFFICULTY_MAP[args.difficulty])
+        logging.basicConfig(level=logging.INFO,
+                            format='%(asctime)-15s %(message)s')
+        run_automated(DIFFICULTY_MAP[args.difficulty], args.pause)

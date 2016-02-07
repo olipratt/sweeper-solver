@@ -47,6 +47,16 @@ class LocalGame(object):
     def player(self):
         return self._player
 
+    @property
+    def enemy_counter(self):
+        return self._enemy_counter
+
+    @property
+    def is_complete(self):
+        """ The game is complete when all (non-zero) enemies are defeated. """
+        return (sum(value for key, value in self._enemy_counter.items()
+                    if key is not 0) == 0)
+
     def reveal(self, location):
         """ Reveal and return a tile, forcing the player to battle any enemy
             on it. If the player dies, an error is raised.
@@ -64,12 +74,6 @@ class LocalGame(object):
 
         self._enemy_counter.subtract({tile.enemy_lvl.exact: 1})
         return tile
-
-    @property
-    def is_complete(self):
-        """ The game is complete when all (non-zero) enemies are defeated. """
-        return (sum(value for key, value in self._enemy_counter.items()
-                    if key is not 0) == 0)
 
     def _place_enemies(self, enemy_list):
         """ Randomly place the enemies on the board. """
