@@ -130,8 +130,9 @@ class GameBoard:
         """ Return an iterator over all spaces in the board neighbouring the
             given space.
         """
-        return (neighbour for neighbour in self.iter_spaces()
-                if neighbour.is_neighbour(space))
+        return (self._get_space(point)
+                for point in space.location.all_chebyshev_neighbours()
+                if self._point_inside_board(point))
 
     def iter_revealed_neighbours(self, space):
         """ Return an iterator over all revealed spaces in the board
