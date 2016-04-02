@@ -1,5 +1,5 @@
 """
-Run a local game to try and solve.
+Define some standard game difficulties that set game parameters.
 """
 import logging
 from collections import Counter
